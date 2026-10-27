@@ -151,4 +151,8 @@ Because the data is stored locally, it is specific to the browser and origin you
 
 ## License
 
+<<<<<<< HEAD
 This project is intended for educational, demonstration, and personal portfolio use. Add a specific open-source license file if you plan to distribute it under a particular license.
+=======
+This project is intended for educational, demonstration, and personal portfolio use. Add a specific open-source license file if you plan to distribute it under a particular license.
+>>>>>>> c75141617f52d572e6db471f0044555613d37a51
