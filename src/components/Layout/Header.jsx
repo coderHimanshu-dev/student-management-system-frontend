@@ -1,22 +1,16 @@
 /**
  * Header.jsx
- * Top header bar with page title, search, notification bell, user profile dropdown.
+ * Top header bar: page title, notification bell, user profile dropdown.
+ * Search is intentionally omitted — the Students page has its own search bar.
  */
 import { useState } from "react";
 
-/* ── Inline SVG Icons ─────────────────────────────────────────── */
+/* ── Inline SVG Icons ─────────────────────────────────────────────── */
 const MenuIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="3" y1="12" x2="21" y2="12" />
     <line x1="3" y1="6" x2="21" y2="6" />
     <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
 
@@ -27,30 +21,23 @@ const BellIcon = () => (
   </svg>
 );
 
-/* ── Page title mapping ───────────────────────────────────────── */
-const pageTitles = {
-  dashboard: "Dashboard",
-  students: "Students",
-  "add-student": "Add Student",
-  "edit-student": "Edit Student",
+/* ── Page title mapping ───────────────────────────────────────────── */
+const PAGE_TITLES = {
+  dashboard:        "Dashboard",
+  students:         "Students",
+  "add-student":    "Add Student",
+  "edit-student":   "Edit Student",
   "student-detail": "Student Details",
-  courses: "Courses",
-  reports: "Reports",
+  courses:          "Courses",
+  reports:          "Reports",
 };
 
-export default function Header({ currentPage, onMenuClick, onSearch }) {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function Header({ currentPage, onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
-
-  const handleSearch = (e) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    onSearch?.(val);
-  };
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-background/80 backdrop-blur-md border-b border-border px-4 sm:px-6 py-3">
-      {/* Left: hamburger + title */}
+      {/* Left: hamburger + page title */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -60,28 +47,18 @@ export default function Header({ currentPage, onMenuClick, onSearch }) {
           <MenuIcon />
         </button>
         <h1 className="text-lg sm:text-xl font-semibold text-foreground">
-          {pageTitles[currentPage] || "Dashboard"}
+          {PAGE_TITLES[currentPage] ?? "Dashboard"}
         </h1>
       </div>
 
-      {/* Right: search, bell, profile */}
-      <div className="flex items-center gap-2 sm:gap-4">
-        {/* Search bar */}
-        <div className="hidden sm:flex items-center bg-input border border-border rounded-md px-3 py-1.5 focus-within:ring-2 focus-within:ring-ring transition-shadow">
-          <SearchIcon />
-          <input
-            type="text"
-            placeholder="Search students…"
-            value={searchQuery}
-            onChange={handleSearch}
-            className="ml-2 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground w-40 lg:w-56"
-          />
-        </div>
-
+      {/* Right: bell + profile */}
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Notification bell */}
-        <button className="relative p-2 rounded-md hover:bg-accent text-foreground transition-colors cursor-pointer">
+        <button
+          className="relative p-2 rounded-md hover:bg-accent text-foreground transition-colors cursor-pointer"
+          aria-label="Notifications"
+        >
           <BellIcon />
-          {/* Badge count */}
           <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full">
             3
           </span>
@@ -92,6 +69,7 @@ export default function Header({ currentPage, onMenuClick, onSearch }) {
           <button
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-2 p-1 rounded-md hover:bg-accent transition-colors cursor-pointer"
+            aria-label="User menu"
           >
             <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
               AD
@@ -99,7 +77,6 @@ export default function Header({ currentPage, onMenuClick, onSearch }) {
             <span className="hidden md:inline text-sm font-medium text-foreground">Admin</span>
           </button>
 
-          {/* Dropdown menu (visual only) */}
           {profileOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />

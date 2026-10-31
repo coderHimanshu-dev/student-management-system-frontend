@@ -1,7 +1,12 @@
+/**
+ * StudentDetailPage.jsx
+ * Page wrapper that fetches a student by URL param and renders StudentDetail.
+ */
 import { useParams, useNavigate } from "react-router-dom";
 import { useStudents } from "../../context/StudentContext";
 import { useToast } from "../UI/Toast";
 import StudentDetail from "./StudentDetail";
+import NotFound from "../UI/NotFound";
 
 export default function StudentDetailPage() {
   const { id } = useParams();
@@ -10,6 +15,16 @@ export default function StudentDetailPage() {
   const { addToast } = useToast();
 
   const student = getStudentById(id);
+
+  if (!student) {
+    return (
+      <NotFound
+        message={`No student found with ID "${id}".`}
+        onBack={() => navigate("/students")}
+        backLabel="Back to Students"
+      />
+    );
+  }
 
   const handleDelete = (studentId) => {
     deleteStudent(studentId);

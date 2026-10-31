@@ -7,7 +7,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-export default function Layout({ children, currentPage, onNavigate, onSearch }) {
+export default function Layout({ children, currentPage, onNavigate }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -20,13 +20,12 @@ export default function Layout({ children, currentPage, onNavigate, onSearch }) 
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main content area – offset on desktop */}
+      {/* Main content area — offset on desktop */}
       <div className="lg:ml-[280px] flex flex-col min-h-screen">
         {/* Header */}
         <Header
           currentPage={currentPage}
           onMenuClick={() => setSidebarOpen(true)}
-          onSearch={onSearch}
         />
 
         {/* Page content */}

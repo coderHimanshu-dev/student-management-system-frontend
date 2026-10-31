@@ -5,6 +5,7 @@
  */
 import { useMemo } from "react";
 import { useStudents } from "../../context/StudentContext";
+import { GRADE_POINTS } from "../../constants";
 
 /* ── Card accent colors ───────────────────────────────────────── */
 const cardColors = [
@@ -29,13 +30,12 @@ export default function CourseList() {
 
   /* ── Derive course data ─────────────────────────────────────── */
   const courses = useMemo(() => {
-    const gradePoints = { A: 4, B: 3, C: 2, D: 1, F: 0 };
     const map = {};
 
     students.forEach((s) => {
       if (!map[s.course]) map[s.course] = { count: 0, gradeSum: 0 };
       map[s.course].count++;
-      map[s.course].gradeSum += gradePoints[s.grade] ?? 0;
+      map[s.course].gradeSum += GRADE_POINTS[s.grade] ?? 0;
     });
 
     const entries = Object.entries(map)

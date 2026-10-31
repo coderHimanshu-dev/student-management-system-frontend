@@ -5,261 +5,170 @@
  */
 import { useState } from "react";
 import Button from "../UI/Button";
-
-const COURSES = [
-  "Computer Science",
-  "Mathematics",
-  "Physics",
-  "Biology",
-  "English Literature",
-  "Economics",
-];
-const STATUSES = ["active", "inactive", "graduated"];
-const GENDERS = ["Male", "Female", "Other"];
-const GRADES = ["A", "B", "C", "D", "F"];
+import { COURSES, STATUSES, GENDERS, GRADES } from "../../constants";
 
 /* ── Validation helpers ───────────────────────────────────────── */
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isValidPhone = (v) => /^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(v);
 
+const buildInitialForm = (student) => ({
+  firstName:      student?.firstName      || "",
+  lastName:       student?.lastName       || "",
+  email:          student?.email          || "",
+  phone:          student?.phone          || "",
+  dateOfBirth:    student?.dateOfBirth    || "",
+  gender:         student?.gender         || "",
+  enrollmentDate: student?.enrollmentDate || "",
+  course:         student?.course         || "",
+  grade:          student?.grade          || "",
+  status:         student?.status         || "active",
+  address:        student?.address        || "",
+});
+
+/* ── Reusable field wrapper ───────────────────────────────────── */
+function Field({ label, required, error, children }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1">
+        {label}{required && <span className="text-destructive ml-1">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+    </div>
+  );
+}
+
 export default function StudentForm({ student, onSubmit, onCancel }) {
   const isEdit = !!student;
-  const [form, setForm] = useState(() => ({
-    firstName: student?.firstName || "",
-    lastName: student?.lastName || "",
-    email: student?.email || "",
-    phone: student?.phone || "",
-    dateOfBirth: student?.dateOfBirth || "",
-    gender: student?.gender || "",
-    enrollmentDate: student?.enrollmentDate || "",
-    course: student?.course || "",
-    grade: student?.grade || "",
-    status: student?.status || "active",
-    address: student?.address || "",
-  }));
-  const [errors, setErrors] = useState({});
+  const [form, setForm]           = useState(() => buildInitialForm(student));
+  const [errors, setErrors]       = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  /* ── Handle field change ────────────────────────────────────── */
+  /* ── Field change handler ─────────────────────────────────────── */
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
   };
 
-  /* ── Validate ───────────────────────────────────────────────── */
+  /* ── Validation ───────────────────────────────────────────────── */
   const validate = () => {
     const errs = {};
-    if (!form.firstName.trim()) errs.firstName = "First name is required";
-    if (!form.lastName.trim()) errs.lastName = "Last name is required";
-    if (!form.email.trim()) errs.email = "Email is required";
-    else if (!isValidEmail(form.email)) errs.email = "Invalid email format";
-    if (!form.phone.trim()) errs.phone = "Phone is required";
-    else if (!isValidPhone(form.phone)) errs.phone = "Invalid phone format (e.g. (555) 123-4567)";
-    if (!form.dateOfBirth) errs.dateOfBirth = "Date of birth is required";
-    if (!form.gender) errs.gender = "Gender is required";
-    if (!form.enrollmentDate) errs.enrollmentDate = "Enrollment date is required";
-    if (!form.course) errs.course = "Course is required";
-    if (!form.grade) errs.grade = "Grade is required";
-    if (!form.address.trim()) errs.address = "Address is required";
+    if (!form.firstName.trim())      errs.firstName      = "First name is required";
+    if (!form.lastName.trim())       errs.lastName       = "Last name is required";
+    if (!form.email.trim())          errs.email          = "Email is required";
+    else if (!isValidEmail(form.email)) errs.email       = "Invalid email format";
+    if (!form.phone.trim())          errs.phone          = "Phone is required";
+    else if (!isValidPhone(form.phone)) errs.phone       = "Invalid phone (e.g. (555) 123-4567)";
+    if (!form.dateOfBirth)           errs.dateOfBirth    = "Date of birth is required";
+    if (!form.gender)                errs.gender         = "Gender is required";
+    if (!form.enrollmentDate)        errs.enrollmentDate = "Enrollment date is required";
+    if (!form.course)                errs.course         = "Course is required";
+    if (!form.grade)                 errs.grade          = "Grade is required";
+    if (!form.address.trim())        errs.address        = "Address is required";
     return errs;
   };
 
-  /* ── Submit ─────────────────────────────────────────────────── */
+  /* ── Submit ───────────────────────────────────────────────────── */
   const handleSubmit = (e) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setSubmitting(true);
-    setTimeout(() => {
-      onSubmit?.(form);
-      setSubmitting(false);
-    }, 250);
+    setTimeout(() => { onSubmit?.(form); setSubmitting(false); }, 250);
   };
 
-  /* ── Field helper ───────────────────────────────────────────── */
-  const inputCls = (field) =>
-    `w-full px-3 py-2 bg-input border rounded-md text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow ${
-      errors[field] ? "border-destructive" : "border-border"
-    }`;
+  /* ── Input class helper ───────────────────────────────────────── */
+  const cls = (field) =>
+    `w-full px-3 py-2 bg-input border rounded-md text-sm text-foreground
+     placeholder:text-muted-foreground focus:outline-none focus:ring-2
+     focus:ring-ring transition-shadow ${errors[field] ? "border-destructive" : "border-border"}`;
 
   return (
     <form onSubmit={handleSubmit} className="bg-card text-card-foreground border border-border rounded-lg p-6">
-      <h2 className="text-lg font-semibold mb-6">{isEdit ? "Edit Student" : "Add New Student"}</h2>
+      <h2 className="text-lg font-semibold mb-6">
+        {isEdit ? "Edit Student" : "Add New Student"}
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-        {/* First Name */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            First Name <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="text"
-            value={form.firstName}
-            onChange={handleChange("firstName")}
-            className={inputCls("firstName")}
-            placeholder="John"
-          />
-          {errors.firstName && <p className="text-xs text-destructive mt-1">{errors.firstName}</p>}
-        </div>
+        <Field label="First Name" required error={errors.firstName}>
+          <input type="text" value={form.firstName} onChange={handleChange("firstName")}
+            className={cls("firstName")} placeholder="John" />
+        </Field>
 
-        {/* Last Name */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Last Name <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="text"
-            value={form.lastName}
-            onChange={handleChange("lastName")}
-            className={inputCls("lastName")}
-            placeholder="Doe"
-          />
-          {errors.lastName && <p className="text-xs text-destructive mt-1">{errors.lastName}</p>}
-        </div>
+        <Field label="Last Name" required error={errors.lastName}>
+          <input type="text" value={form.lastName} onChange={handleChange("lastName")}
+            className={cls("lastName")} placeholder="Doe" />
+        </Field>
 
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Email <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={handleChange("email")}
-            className={inputCls("email")}
-            placeholder="john.doe@university.edu"
-          />
-          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
-        </div>
+        <Field label="Email" required error={errors.email}>
+          <input type="email" value={form.email} onChange={handleChange("email")}
+            className={cls("email")} placeholder="john.doe@university.edu" />
+        </Field>
 
-        {/* Phone */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Phone <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="tel"
-            value={form.phone}
-            onChange={handleChange("phone")}
-            className={inputCls("phone")}
-            placeholder="(555) 123-4567"
-          />
-          {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
-        </div>
+        <Field label="Phone" required error={errors.phone}>
+          <input type="tel" value={form.phone} onChange={handleChange("phone")}
+            className={cls("phone")} placeholder="(555) 123-4567" />
+        </Field>
 
-        {/* Date of Birth */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Date of Birth <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="date"
-            value={form.dateOfBirth}
-            onChange={handleChange("dateOfBirth")}
-            className={inputCls("dateOfBirth")}
-          />
-          {errors.dateOfBirth && <p className="text-xs text-destructive mt-1">{errors.dateOfBirth}</p>}
-        </div>
+        <Field label="Date of Birth" required error={errors.dateOfBirth}>
+          <input type="date" value={form.dateOfBirth} onChange={handleChange("dateOfBirth")}
+            className={cls("dateOfBirth")} />
+        </Field>
 
-        {/* Gender */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Gender <span className="text-destructive">*</span>
-          </label>
-          <select value={form.gender} onChange={handleChange("gender")} className={inputCls("gender")}>
+        <Field label="Gender" required error={errors.gender}>
+          <select value={form.gender} onChange={handleChange("gender")} className={cls("gender")}>
             <option value="">Select gender…</option>
-            {GENDERS.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
+            {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
-          {errors.gender && <p className="text-xs text-destructive mt-1">{errors.gender}</p>}
-        </div>
+        </Field>
 
-        {/* Enrollment Date */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Enrollment Date <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="date"
-            value={form.enrollmentDate}
-            onChange={handleChange("enrollmentDate")}
-            className={inputCls("enrollmentDate")}
-          />
-          {errors.enrollmentDate && <p className="text-xs text-destructive mt-1">{errors.enrollmentDate}</p>}
-        </div>
+        <Field label="Enrollment Date" required error={errors.enrollmentDate}>
+          <input type="date" value={form.enrollmentDate} onChange={handleChange("enrollmentDate")}
+            className={cls("enrollmentDate")} />
+        </Field>
 
-        {/* Course */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Course <span className="text-destructive">*</span>
-          </label>
-          <select value={form.course} onChange={handleChange("course")} className={inputCls("course")}>
+        <Field label="Course" required error={errors.course}>
+          <select value={form.course} onChange={handleChange("course")} className={cls("course")}>
             <option value="">Select course…</option>
-            {COURSES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
+            {COURSES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          {errors.course && <p className="text-xs text-destructive mt-1">{errors.course}</p>}
-        </div>
+        </Field>
 
-        {/* Grade */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Grade <span className="text-destructive">*</span>
-          </label>
-          <select value={form.grade} onChange={handleChange("grade")} className={inputCls("grade")}>
+        <Field label="Grade" required error={errors.grade}>
+          <select value={form.grade} onChange={handleChange("grade")} className={cls("grade")}>
             <option value="">Select grade…</option>
-            {GRADES.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
+            {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
-          {errors.grade && <p className="text-xs text-destructive mt-1">{errors.grade}</p>}
-        </div>
+        </Field>
 
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
-          <select value={form.status} onChange={handleChange("status")} className={inputCls("status")}>
+        <Field label="Status">
+          <select value={form.status} onChange={handleChange("status")} className={cls("status")}>
             {STATUSES.map((s) => (
-              <option key={s} value={s} className="capitalize">
+              <option key={s} value={s}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}
               </option>
             ))}
           </select>
-        </div>
+        </Field>
 
-        {/* Address (full width) */}
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium mb-1">
-            Address <span className="text-destructive">*</span>
-          </label>
-          <textarea
-            rows="2"
-            value={form.address}
-            onChange={handleChange("address")}
-            className={inputCls("address")}
-            placeholder="123 Main St, City, Country"
-          />
-          {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
-        </div>
+        <Field label="Address" required error={errors.address} className="sm:col-span-2">
+          <div className="sm:col-span-2">
+            <textarea
+              rows="2"
+              value={form.address}
+              onChange={handleChange("address")}
+              className={cls("address")}
+              placeholder="123 Main St, City, Country"
+            />
+            {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
+          </div>
+        </Field>
       </div>
 
-      {/* Form actions */}
+      {/* Actions */}
       <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-border">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+          <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
         )}
         <Button type="submit" loading={submitting}>
           {isEdit ? "Save Changes" : "Add Student"}

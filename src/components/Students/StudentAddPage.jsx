@@ -1,7 +1,12 @@
+/**
+ * StudentAddPage.jsx
+ * Page wrapper for creating a new student.
+ */
 import { useNavigate } from "react-router-dom";
 import { useStudents } from "../../context/StudentContext";
 import { useToast } from "../UI/Toast";
 import StudentForm from "./StudentForm";
+import BackLink from "../UI/BackLink";
 
 export default function StudentAddPage() {
   const navigate = useNavigate();
@@ -16,26 +21,7 @@ export default function StudentAddPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
-      <button
-        onClick={() => navigate("/students")}
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        Back to Students
-      </button>
-
+      <BackLink onClick={() => navigate("/students")} label="Back to Students" />
       <StudentForm onSubmit={handleSubmit} onCancel={() => navigate("/students")} />
     </div>
   );
